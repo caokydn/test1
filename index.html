@@ -1,3 +1,40 @@
+Rất rõ 👍
+Mình sẽ giữ nguyên format – cấu trúc – style – welcome screen – audio controls như file bạn đưa,
+chỉ thay phần “vẽ canvas” → “điền từ bằng box kéo thả”, đúng 100% yêu cầu.
+
+Dưới đây là FILE HTML HOÀN CHỈNH, cùng format, cùng folder sound/, dùng được jpg + png, có màn hình chào mừng.
+
+
+---
+
+✅ NHỮNG GÌ ĐÃ ĐƯỢC CHỈNH
+
+❌ BỎ canvas + vẽ line
+
+✅ Thêm wordBox (contenteditable)
+
+✅ Có sẵn 1 box trong ảnh
+
+✅ Nút tạo thêm box
+
+✅ Kéo thả box trong ảnh
+
+✅ Welcome screen giữ nguyên
+
+✅ Audio + seek bar giữ nguyên
+
+✅ Done → khóa audio + khóa box
+
+
+
+---
+
+📄 FILE HTML (COPY LÀ CHẠY)
+
+> 👉 Lưu nguyên file này, chỉ cần thay sound/audio.mp3 và sound/picture.png / jpg
+
+
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -8,20 +45,21 @@
 <style>
 body{
   margin:0;
-  font-family:"Comic Sans MS", sans-serif;
+  font-family: "Comic Sans MS", sans-serif;
   background:#fef3c7;
   text-align:center;
 }
- 
+
 h1{
   margin:10px 0;
   color:#ec4899;
 }
 
-/* AUDIO */
+/* --- AUDIO CONTROLS --- */
 #audioControls{
   display:flex;
   justify-content:center;
+  align-items:center;
   gap:10px;
   margin:10px;
   flex-wrap:wrap;
@@ -34,27 +72,36 @@ button{
   border-radius:10px;
   cursor:pointer;
   background:linear-gradient(90deg,#38bdf8,#0ea5e9);
+  color:#0f172a;
   font-weight:bold;
 }
 
-#addBoxBtn{
-  background:linear-gradient(90deg,#facc15,#eab308);
+button:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
 }
 
-/* DRAW AREA */
+input[type=range]{ width:200px; }
+
+/* --- DRAW AREA --- */
 #drawWrapper{
-  position:relative;
-  max-width:900px;
-  margin:0 auto;
+  position: relative;
+  max-width: 900px;
+  max-height: 90vh;
+  margin: 0 auto;
+  touch-action: none;
 }
 
 #bgImage{
-  width:100%;
-  display:block;
-  border-radius:12px;
+  width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  border-radius: 12px;
 }
 
-/* WORD BOX */
+/* --- WORD BOX --- */
 .wordBox{
   position:absolute;
   min-width:90px;
@@ -63,7 +110,7 @@ button{
   font-size:20px;
   border:2px dashed #ec4899;
   border-radius:8px;
-  background:white;
+  background:#fff;
   cursor:move;
   user-select:none;
 }
@@ -72,61 +119,185 @@ button{
   outline:none;
   border-style:solid;
 }
+
+/* --- BOTTOM CONTROLS --- */
+#drawControls{
+  margin:12px;
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+#doneBtn{
+  background:linear-gradient(90deg,#22c55e,#16a34a);
+}
+
+#addBoxBtn{
+  background:linear-gradient(90deg,#facc15,#eab308);
+}
+
+/* --- WELCOME SCREEN --- */
+#welcomeScreen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #a5f3fc, #fbbfbc, #fde68a);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  color: #0f172a;
+  font-size: 28px;
+  text-align: center;
+}
+
+#welcomeScreen h2 {
+  font-size: 2.5em;
+  color: #f472b6;
+  margin-bottom: 20px;
+}
+
+#welcomeScreen input {
+  padding: 14px 28px;
+  font-size: 20px;
+  border: none;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  width: 280px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+#welcomeScreen button {
+  padding: 14px 28px;
+  font-size: 20px;
+  font-weight: bold;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+  color: #0f172a;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
 </style>
 </head>
 
 <body>
 
-<h1>🎧 Listening & Fill the Words – Cambridge Starters 🎉</h1>
-
-<div id="audioControls">
-  <button onclick="audio.play()">▶️ Play</button>
-  <button onclick="audio.currentTime=0;audio.play()">🔁 Replay</button>
-  <button id="addBoxBtn">➕ Add box</button>
+<div id="welcomeScreen">
+  <h2>🎉 Junior English chào mừng các em 🎉</h2>
+  <input type="text" id="studentName" placeholder="Nhập tên em...">
+  <button id="startBtn">Bắt đầu</button>
 </div>
 
+<div id="gameArea" style="display:none;">
+
+<h1>🎉 Listening & Fill the Words - Junior English, 113 Lê Trọng Tấn, Đà Nẵng - 0935.994359 🎉</h1>
+
+<!-- AUDIO -->
+<div id="audioControls">
+  <button id="playBtn">▶️ Play</button>
+  <button id="replayBtn">🔁 Replay</button>
+  <input type="range" id="seekBar" min="0" max="100" value="0">
+  <span id="timeDisplay" style="font-weight:bold; min-width:90px;">00:00 / 00:00</span>
+</div>
+
+<!-- ACTION BUTTONS -->
+<div id="drawControls">
+  <button id="addBoxBtn">➕ Thêm ô</button>
+  <button id="doneBtn">✅ Hoàn thành</button>
+</div>
+
+<!-- IMAGE + BOX -->
 <div id="drawWrapper">
-  <img id="bgImage" src="sound/picture.png">
+  <img id="bgImage" src="sound/picture.png" alt="Listening picture">
 
   <!-- BOX CÓ SẴN -->
   <div class="wordBox" contenteditable="true"
-       style="top:20px; left:20px;">
-  </div>
+       style="top:20px; left:20px;"></div>
 </div>
 
 <audio id="audio" src="sound/audio.mp3"></audio>
 
 <script>
+/* ================= IMAGE FALLBACK ================= */
+const img = document.getElementById("bgImage");
+img.onerror = ()=> img.src = "sound/picture.jpg";
+
+/* ================= AUDIO ================= */
+const audio = document.getElementById("audio");
+const playBtn = document.getElementById("playBtn");
+const replayBtn = document.getElementById("replayBtn");
+const seekBar = document.getElementById("seekBar");
+const timeDisplay = document.getElementById("timeDisplay");
+
+let audioEnabled = true;
+
+playBtn.onclick = ()=>{
+  if(!audioEnabled) return;
+  if(audio.paused){
+    audio.play();
+    playBtn.textContent="⏸ Pause";
+  }else{
+    audio.pause();
+    playBtn.textContent="▶️ Play";
+  }
+};
+
+replayBtn.onclick = ()=>{
+  if(!audioEnabled) return;
+  audio.currentTime = 0;
+  audio.play();
+  playBtn.textContent="⏸ Pause";
+};
+
+audio.ontimeupdate = ()=>{
+  seekBar.value = (audio.currentTime / audio.duration) * 100 || 0;
+  timeDisplay.textContent =
+    formatTime(audio.currentTime) + " / " + formatTime(audio.duration);
+};
+
+seekBar.oninput = ()=>{
+  if(!audioEnabled) return;
+  audio.currentTime = (seekBar.value/100) * audio.duration;
+};
+
+function formatTime(sec){
+  const m = Math.floor(sec/60)||0;
+  const s = Math.floor(sec%60)||0;
+  return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+
+/* ================= WORD BOX DRAG ================= */
 const wrapper = document.getElementById("drawWrapper");
-const addBoxBtn = document.getElementById("addBoxBtn");
+let activeBox=null, offsetX=0, offsetY=0;
+let drawEnabled = true;
 
-let activeBox = null;
-let offsetX = 0;
-let offsetY = 0;
-
-/* DRAG */
 wrapper.addEventListener("pointerdown", e=>{
+  if(!drawEnabled) return;
   if(e.target.classList.contains("wordBox")){
     activeBox = e.target;
-    const rect = activeBox.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
+    const r = activeBox.getBoundingClientRect();
+    offsetX = e.clientX - r.left;
+    offsetY = e.clientY - r.top;
   }
 });
 
 wrapper.addEventListener("pointermove", e=>{
   if(activeBox){
-    const wrapRect = wrapper.getBoundingClientRect();
-    activeBox.style.left = (e.clientX - wrapRect.left - offsetX) + "px";
-    activeBox.style.top  = (e.clientY - wrapRect.top  - offsetY) + "px";
+    const w = wrapper.getBoundingClientRect();
+    activeBox.style.left = (e.clientX - w.left - offsetX)+"px";
+    activeBox.style.top  = (e.clientY - w.top  - offsetY)+"px";
   }
 });
 
-wrapper.addEventListener("pointerup", ()=> activeBox = null);
-wrapper.addEventListener("pointerleave", ()=> activeBox = null);
+wrapper.addEventListener("pointerup", ()=> activeBox=null);
+wrapper.addEventListener("pointerleave", ()=> activeBox=null);
 
-/* ADD BOX */
-addBoxBtn.onclick = ()=>{
+/* ================= ADD BOX ================= */
+document.getElementById("addBoxBtn").onclick = ()=>{
+  if(!drawEnabled) return;
   const box = document.createElement("div");
   box.className = "wordBox";
   box.contentEditable = true;
@@ -135,7 +306,47 @@ addBoxBtn.onclick = ()=>{
   wrapper.appendChild(box);
   box.focus();
 };
+
+/* ================= DONE ================= */
+document.getElementById("doneBtn").onclick = ()=>{
+  drawEnabled = false;
+  audioEnabled = false;
+  audio.pause();
+  playBtn.disabled = true;
+  replayBtn.disabled = true;
+  seekBar.disabled = true;
+  document.querySelectorAll(".wordBox").forEach(b=>b.contentEditable=false);
+};
+
+/* ================= WELCOME ================= */
+const welcomeScreen = document.getElementById("welcomeScreen");
+const gameArea = document.getElementById("gameArea");
+document.getElementById("startBtn").onclick = ()=>{
+  if(!studentName.value.trim()){
+    alert("Vui lòng nhập tên!");
+    return;
+  }
+  welcomeScreen.style.display="none";
+  gameArea.style.display="block";
+};
 </script>
 
+</div>
 </body>
 </html>
+
+
+---
+
+✅ KẾT LUẬN
+
+Giữ đúng format bạn yêu cầu
+
+Dễ nhân bản cho nhiều bài Starters
+
+Phù hợp tablet – PC – màn hình cảm ứng
+
+Giáo viên chỉ cần thay ảnh + audio
+
+
+Nếu bạn muốn 👉 lưu vị trí box / khóa theo từng bài / xuất ảnh bài làm, mình làm tiếp rất nhanh.
