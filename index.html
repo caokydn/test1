@@ -1,106 +1,88 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Listening & Fill the Words - Starters</title>
-
+<title>Listening & Drawing - Starters</title>
 <style>
-body{
-  margin:0;
-  font-family: "Comic Sans MS", sans-serif;
-  background:#fef3c7;
-  text-align:center;
-}
+  body{
+    margin:0;
+    font-family: "Comic Sans MS", sans-serif;
+    background:#fef3c7;
+    text-align:center;
+  }
 
-h1{
-  margin:10px 0;
-  color:#ec4899;
-}
+  h1{
+    margin:10px 0;
+    color:#ec4899;
+  }
 
-/* --- AUDIO CONTROLS --- */
-#audioControls{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:10px;
-  margin:10px;
-  flex-wrap:wrap;
-}
+  /* --- AUDIO CONTROLS --- */
+  #audioControls{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    margin:10px;
+    flex-wrap:wrap;
+  }
 
-button{
-  padding:8px 16px;
-  font-size:16px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  background:linear-gradient(90deg,#38bdf8,#0ea5e9);
-  color:#0f172a;
-  font-weight:bold;
-}
+  button{
+    padding:8px 16px;
+    font-size:16px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    background:linear-gradient(90deg,#38bdf8,#0ea5e9);
+    color:#0f172a;
+    font-weight:bold;
+  }
 
-button:disabled{
-  opacity:0.5;
-  cursor:not-allowed;
-}
+  button:disabled{
+    opacity:0.5;
+    cursor:not-allowed;
+  }
 
-input[type=range]{ width:200px; }
+  input[type=range]{ width:200px; }
 
-/* --- DRAW AREA --- */
+  /* --- DRAW AREA --- */
 #drawWrapper{
   position: relative;
   max-width: 900px;
-  max-height: 90vh;
+  max-height: 90vh;     /* 👈 khớp với ảnh */
   margin: 0 auto;
   touch-action: none;
 }
 
+
 #bgImage{
   width: 100%;
-  max-height: 90vh;
-  object-fit: contain;
+  max-height: 90vh;     /* 👈 không cao quá 90% màn hình */
+  object-fit: contain; /* 👈 giữ đúng tỉ lệ */
   display: block;
   margin: 0 auto;
   border-radius: 12px;
 }
 
-/* --- WORD BOX --- */
-.wordBox{
-  position:absolute;
-  min-width:60px;
-  min-height:18px;
-  padding:3px 5px;
-  font-size:15px;
-  border:2px dashed #ec4899;
-  border-radius:8px;
-  background:#fff;
-  cursor:move;
-  user-select:none;
-}
 
+  #drawCanvas{
+    position:absolute;
+    top:0;left:0;
+  }
 
-.wordBox:focus{
-  outline:none;
-  border-style:solid;
-}
+  /* --- BOTTOM CONTROLS --- */
+  #drawControls{
+    margin:12px;
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
 
-/* --- BOTTOM CONTROLS --- */
-#drawControls{
-  margin:12px;
-  display:flex;
-  justify-content:center;
-  gap:12px;
-  flex-wrap:wrap;
-}
+  #doneBtn{
+    background:linear-gradient(90deg,#22c55e,#16a34a);
+  }
 
-#doneBtn{
-  background:linear-gradient(90deg,#22c55e,#16a34a);
-}
-
-#addBoxBtn{
-  background:linear-gradient(90deg,#facc15,#eab308);
-}
 
 /* --- WELCOME SCREEN --- */
 #welcomeScreen {
@@ -145,11 +127,11 @@ input[type=range]{ width:200px; }
   color: #0f172a;
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
+
+
 </style>
 </head>
-
 <body>
-
 <div id="welcomeScreen">
   <h2>🎉 Junior English chào mừng các em 🎉</h2>
   <input type="text" id="studentName" placeholder="Nhập tên em...">
@@ -158,12 +140,12 @@ input[type=range]{ width:200px; }
 
 <div id="gameArea" style="display:none;">
 
-<h1>🎉Junior English, 113 Lê Trọng Tấn, Đà Nẵng - 0935.994359 🎉 <br>
-Bài tập Listening & Fill 
-</h1>
+
+<h1>  🎉Junior English, 113 Lê Trọng Tấn, Đà Nẵng-0935.994359 🎉<br>
+Bài tập Listen & Draw</h1>
 
   <div style="font-size:16px; font-weight:bold; color:#92400e;">
-    👉 Hướng dẫn: Các em kéo box vào vị trí thích hợp và điền từ
+    👉 Hướng dẫn: Các em vẽ trực tiếp vào ảnh để nối
   </div>
 
 <!-- AUDIO -->
@@ -174,19 +156,22 @@ Bài tập Listening & Fill
   <span id="timeDisplay" style="font-weight:bold; min-width:90px;">00:00 / 00:00</span>
 </div>
 
-
-
-<!-- ACTION BUTTONS -->
-<div id="drawControls">
-  <button id="addBoxBtn">➕ Thêm Box</button>
+<!-- ACTION BUTTONS (UNDER AUDIO) -->
+<div id="drawControls" style="margin:8px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+  <button id="undoBtn">⬅️ Undo</button>
+  <button id="redoBtn">➡️ Redo</button>
   <button id="doneBtn">✅ Hoàn thành</button>
 </div>
 
-<!-- IMAGE + BOX -->
+
+
+<!-- DRAW AREA -->
 <div id="drawWrapper">
   <img id="bgImage" src="sound/picture.png" alt="Listening picture">
-
+  <canvas id="drawCanvas"></canvas>
 </div>
+
+
 
 <audio id="audio" src="sound/audio.mp3"></audio>
 
@@ -206,13 +191,8 @@ let audioEnabled = true;
 
 playBtn.onclick = ()=>{
   if(!audioEnabled) return;
-  if(audio.paused){
-    audio.play();
-    playBtn.textContent="⏸ Pause";
-  }else{
-    audio.pause();
-    playBtn.textContent="▶️ Play";
-  }
+  if(audio.paused){ audio.play(); playBtn.textContent="⏸ Pause"; }
+  else{ audio.pause(); playBtn.textContent="▶️ Play"; }
 };
 
 replayBtn.onclick = ()=>{
@@ -224,116 +204,146 @@ replayBtn.onclick = ()=>{
 
 audio.ontimeupdate = ()=>{
   seekBar.value = (audio.currentTime / audio.duration) * 100 || 0;
-  timeDisplay.textContent =
-    formatTime(audio.currentTime) + " / " + formatTime(audio.duration);
+  updateTime();
 };
 
 seekBar.oninput = ()=>{
   if(!audioEnabled) return;
   audio.currentTime = (seekBar.value/100) * audio.duration;
+  updateTime();
 };
 
 function formatTime(sec){
-  const m = Math.floor(sec/60)||0;
-  const s = Math.floor(sec%60)||0;
-  return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+  const m = Math.floor(sec / 60) || 0;
+  const s = Math.floor(sec % 60) || 0;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
-/* ================= WORD BOX DRAG ================= */
+function updateTime(){
+  timeDisplay.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+}
 
+/* ================= CANVAS DRAW ================= */
+const canvas = document.getElementById("drawCanvas");
+const ctx = canvas.getContext("2d");
 const wrapper = document.getElementById("drawWrapper");
-let activeBox=null, offsetX=0, offsetY=0;
+
+let strokes = [];
+let redoStack = [];
+let drawing = false;
+let currentStroke = null;
 let drawEnabled = true;
 
-wrapper.addEventListener("focusin", e => {
-  if (
-    e.target.classList.contains("wordBox") &&
-    e.target.textContent.trim() === "Kéo và điền box"
-  ) {
-    e.target.textContent = "";
-  }
-});
-
-wrapper.addEventListener("pointerdown", e=>{
-  if(!drawEnabled) return;
-  if(e.target.classList.contains("wordBox")){
-    activeBox = e.target;
-    const r = activeBox.getBoundingClientRect();
-    offsetX = e.clientX - r.left;
-    offsetY = e.clientY - r.top;
-  }
-});
-
-wrapper.addEventListener("pointermove", e=>{
-  if(activeBox){
-    const w = wrapper.getBoundingClientRect();
-    activeBox.style.left = (e.clientX - w.left - offsetX)+"px";
-    activeBox.style.top  = (e.clientY - w.top  - offsetY)+"px";
-  }
-});
-
-wrapper.addEventListener("pointerup", ()=> activeBox=null);
-wrapper.addEventListener("pointerleave", ()=> activeBox=null);
-
-/* ================= ADD BOX ================= */
-document.getElementById("addBoxBtn").onclick = ()=>{
-  if(!drawEnabled) return;
-  const box = document.createElement("div");
-  box.className = "wordBox";
-  box.contentEditable = true;
-  box.style.top = "20px";
-  box.style.left = "20px";
-  wrapper.appendChild(box);
-  box.focus();
-};
-
-function createInitialBoxes(count = 6){
-  for(let i = 0; i < count; i++){
-    const box = document.createElement("div");
-    box.className = "wordBox";
-    box.contentEditable = true;
-
-    // 👉 Chữ gợi ý sẵn
-    box.textContent = "Kéo và điền box";
-
-    box.style.top  = (20 + i*0) + "px";
-    box.style.left = "20px";
-
-    wrapper.appendChild(box);
-  }
+function resizeCanvas(){
+  canvas.width = img.clientWidth;
+  canvas.height = img.clientHeight;
+  redraw();
 }
 
+img.onload = () => {
+  resizeCanvas();
+};window.addEventListener("resize", resizeCanvas);
 
+function randomColor(){
+  return `hsl(${Math.random()*360},80%,50%)`;
+}
 
+canvas.addEventListener("pointerdown", e=>{
+  if(!drawEnabled) return;
+  drawing = true;
+  redoStack = [];
+  currentStroke = { color: randomColor(), points: [] };
+  strokes.push(currentStroke);
+  addPoint(e);
+});
+
+canvas.addEventListener("pointermove", e=>{
+  if(!drawing) return;
+  addPoint(e);
+  redraw();
+});
+
+canvas.addEventListener("pointerup", ()=> drawing=false);
+canvas.addEventListener("pointerleave", ()=> drawing=false);
+
+function addPoint(e){
+  const rect = canvas.getBoundingClientRect();
+  currentStroke.points.push({
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  });
+}
+
+function redraw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  strokes.forEach(s=>{
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    s.points.forEach((p,i)=>{
+      if(i===0) ctx.moveTo(p.x,p.y);
+      else ctx.lineTo(p.x,p.y);
+    });
+    ctx.stroke();
+  });
+}
+
+/* ================= UNDO / REDO ================= */
+const undoBtn = document.getElementById("undoBtn");
+const redoBtn = document.getElementById("redoBtn");
+
+undoBtn.onclick = ()=>{
+  if(!drawEnabled || strokes.length===0) return;
+  redoStack.push(strokes.pop());
+  redraw();
+};
+
+redoBtn.onclick = ()=>{
+  if(!drawEnabled || redoStack.length===0) return;
+  strokes.push(redoStack.pop());
+  redraw();
+};
 
 /* ================= DONE ================= */
-document.getElementById("doneBtn").onclick = ()=>{
+const doneBtn = document.getElementById("doneBtn");
+
+doneBtn.onclick = ()=>{
   drawEnabled = false;
   audioEnabled = false;
   audio.pause();
   playBtn.disabled = true;
   replayBtn.disabled = true;
   seekBar.disabled = true;
-  document.querySelectorAll(".wordBox").forEach(b=>b.contentEditable=false);
+  undoBtn.disabled = true;
+  redoBtn.disabled = true;
+  doneBtn.disabled = true;
 };
 
-/* ================= WELCOME ================= */
+/* ================= WELCOME SCREEN ================= */
 const welcomeScreen = document.getElementById("welcomeScreen");
+const startBtn = document.getElementById("startBtn");
+const studentNameInput = document.getElementById("studentName");
 const gameArea = document.getElementById("gameArea");
-document.getElementById("startBtn").onclick = ()=>{
-  if(!studentName.value.trim()){
-    alert("Vui lòng nhập tên!");
+
+let studentName = "";
+
+startBtn.onclick = () => {
+  studentName = studentNameInput.value.trim();
+  if(!studentName){
+    alert("Vui lòng nhập tên trước khi bắt đầu!");
     return;
   }
-  welcomeScreen.style.display="none";
-  gameArea.style.display="block";
-
-
-// 👇 tạo sẵn 6 box
-createInitialBoxes(6);
-
+  welcomeScreen.style.display = "none";
+  gameArea.style.display = "block";
+// 👇 QUAN TRỌNG: resize canvas sau khi game hiện
+  setTimeout(() => {
+    resizeCanvas();
+  }, 100);
 
 };
+
+
 </script>
 
 </div>
