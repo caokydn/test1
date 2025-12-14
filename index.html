@@ -69,15 +69,16 @@ input[type=range]{ width:200px; }
 .wordBox{
   position:absolute;
   min-width:90px;
-  min-height:36px;
+  min-height:22px;
   padding:6px 10px;
-  font-size:20px;
+  font-size:15px;
   border:2px dashed #ec4899;
   border-radius:8px;
   background:#fff;
   cursor:move;
   user-select:none;
 }
+
 
 .wordBox:focus{
   outline:none;
@@ -157,7 +158,13 @@ input[type=range]{ width:200px; }
 
 <div id="gameArea" style="display:none;">
 
-<h1>🎉 Listening & Fill the Words - Junior English, 113 Lê Trọng Tấn, Đà Nẵng - 0935.994359 🎉</h1>
+<h1>🎉Junior English, 113 Lê Trọng Tấn, Đà Nẵng - 0935.994359 🎉 <br>
+Bài tập Listening & Fill 
+</h1>
+
+  <div style="font-size:16px; font-weight:bold; color:#92400e;">
+    👉 Hướng dẫn: Các em kéo box vào vị trí thích hợp và điền từ
+  </div>
 
 <!-- AUDIO -->
 <div id="audioControls">
@@ -167,9 +174,11 @@ input[type=range]{ width:200px; }
   <span id="timeDisplay" style="font-weight:bold; min-width:90px;">00:00 / 00:00</span>
 </div>
 
+
+
 <!-- ACTION BUTTONS -->
 <div id="drawControls">
-  <button id="addBoxBtn">➕ Thêm ô</button>
+  <button id="addBoxBtn">➕ Thêm Box</button>
   <button id="doneBtn">✅ Hoàn thành</button>
 </div>
 
@@ -177,9 +186,6 @@ input[type=range]{ width:200px; }
 <div id="drawWrapper">
   <img id="bgImage" src="sound/picture.png" alt="Listening picture">
 
-  <!-- BOX CÓ SẴN -->
-  <div class="wordBox" contenteditable="true"
-       style="top:20px; left:20px;"></div>
 </div>
 
 <audio id="audio" src="sound/audio.mp3"></audio>
@@ -234,9 +240,19 @@ function formatTime(sec){
 }
 
 /* ================= WORD BOX DRAG ================= */
+
 const wrapper = document.getElementById("drawWrapper");
 let activeBox=null, offsetX=0, offsetY=0;
 let drawEnabled = true;
+
+wrapper.addEventListener("focusin", e => {
+  if (
+    e.target.classList.contains("wordBox") &&
+    e.target.textContent.trim() === "Kéo và điền box"
+  ) {
+    e.target.textContent = "";
+  }
+});
 
 wrapper.addEventListener("pointerdown", e=>{
   if(!drawEnabled) return;
@@ -271,6 +287,25 @@ document.getElementById("addBoxBtn").onclick = ()=>{
   box.focus();
 };
 
+function createInitialBoxes(count = 6){
+  for(let i = 0; i < count; i++){
+    const box = document.createElement("div");
+    box.className = "wordBox";
+    box.contentEditable = true;
+
+    // 👉 Chữ gợi ý sẵn
+    box.textContent = "Kéo và điền box";
+
+    box.style.top  = (20 + i*0) + "px";
+    box.style.left = "20px";
+
+    wrapper.appendChild(box);
+  }
+}
+
+
+
+
 /* ================= DONE ================= */
 document.getElementById("doneBtn").onclick = ()=>{
   drawEnabled = false;
@@ -292,11 +327,15 @@ document.getElementById("startBtn").onclick = ()=>{
   }
   welcomeScreen.style.display="none";
   gameArea.style.display="block";
+
+
+// 👇 tạo sẵn 6 box
+createInitialBoxes(6);
+
+
 };
 </script>
 
 </div>
 </body>
 </html>
-
-
