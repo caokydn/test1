@@ -591,37 +591,26 @@ function nextQuestion(){
 }
 
 function autoFitText(box){
-  let fontSize = 34;
+  const playW = playArea.clientWidth;
+  const playH = playArea.clientHeight;
+
+  // ✅ Giới hạn font tối đa
+  // Màn hình ngang → font nhỏ hơn một chút
+  const isLandscape = playW > playH;
+  const MAX_FONT = isLandscape ? 30 : 34;
+  const MIN_FONT = 18;
+
+  let fontSize = MAX_FONT;
   box.style.fontSize = fontSize + "px";
 
   const maxHeight = box.parentElement.clientHeight * 0.7;
 
-  while(box.scrollHeight > maxHeight && fontSize > 18){
+  while(box.scrollHeight > maxHeight && fontSize > MIN_FONT){
     fontSize -= 2;
     box.style.fontSize = fontSize + "px";
   }
 }
 
-let lastPlayW = playArea.clientWidth;
-let lastPlayH = playArea.clientHeight;
-
-window.addEventListener("resize", () => {
-  const newW = playArea.clientWidth;
-  const newH = playArea.clientHeight;
-
-  // ✅ Chỉ resize chữ khi playArea thực sự đổi size
-  if(newW !== lastPlayW || newH !== lastPlayH){
-    lastPlayW = newW;
-    lastPlayH = newH;
-
-    if(currentMode === "teacher"){
-      const box = document.getElementById("basicQuestion");
-      if(box){
-        autoFitText(box);
-      }
-    }
-  }
-});
 
 
 
