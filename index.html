@@ -500,43 +500,63 @@ function startTeacherMode(){
 function startQuestionMode(){
   menu.style.display = "none";
   test.style.display = "block";
-document.getElementById("topBar").style.display = "none";
-document.getElementById("questionBar").style.display = "flex";
 
-// ✅ Xóa nút Question của Starter
-document.getElementById("questionBtns").innerHTML = "";
-document.getElementById("questionBtnsOverlay").innerHTML = "";
+  document.getElementById("topBar").style.display = "none";
+  document.getElementById("questionBar").style.display = "none";
 
+  document.getElementById("questionBtns").innerHTML = "";
+  document.getElementById("questionBtnsOverlay").innerHTML = "";
 
+  // ✅ Xoá basicBox cũ nếu có
+  const oldBox = document.getElementById("basicBox");
+  if(oldBox) oldBox.remove();
 
-playArea.innerHTML = `
-  <div id="basicBox" style="
+  // ✅ tạo div basicBox mới
+  let basicBox = document.createElement("div");
+  basicBox.id = "basicBox";
+  basicBox.style = `
+    position:absolute; /* đặt lên trên canvas */
+    top:0;
+    left:0;
     width:100%;
+    height:100%;
+    z-index:20;
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:center;
+    justify-content:flex-start;
     font-size:32px;
-    padding:30px;
-    height:100%;
+    padding:20px;
     overflow-y:auto;
-  ">
-    <div id="basicQuestion"></div>
-  </div>
-`;
+    gap:20px;
+    pointer-events:auto;
+  `;
 
+  basicBox.innerHTML = `
+    <div id="btnBox" style="display:flex; gap:16px; flex-shrink:0;">
+<button id="nextBasicBtnInner" class="big-btn">Next question ▶</button>
+<button id="backBasicBtnInner" class="big-btn secondary">⬅ Back</button>
+
+    </div>
+    <div id="basicQuestion"></div>
+  `;
+
+  playArea.appendChild(basicBox);
+
+  // gán sự kiện cho nút
+document.getElementById("nextBasicBtnInner").onclick = nextQuestion;
+document.getElementById("backBasicBtnInner").onclick = backToMenu;
 
   showQuestionText();
-
-  document.getElementById("nextBasicBtn").onclick = nextQuestion;
-  document.getElementById("backBasicBtn").onclick = backToMenu;
 }
+
 
 
 
 function showQuestionText(){
   const box = document.getElementById("basicQuestion");
-  const nextBtn = document.getElementById("nextBasicBtn");
+const nextBtn = document.getElementById("nextBasicBtnInner");
+
 
   let list, index;
 
