@@ -56,7 +56,9 @@ h1{ color:#ec4899; }
   aspect-ratio:16/8;
   border:3px dashed #f59e0b;
   border-radius:12px;
-  overflow: visible;   /* ✅ cho phép nội dung không bị cắt */  display:flex;
+    overflow: visible;   /* ✅ cho phép nội dung không bị cắt */
+
+  display:flex;
   background:#fff;
 }
 
@@ -600,14 +602,27 @@ function autoFitText(box){
   }
 }
 
+let lastPlayW = playArea.clientWidth;
+let lastPlayH = playArea.clientHeight;
+
 window.addEventListener("resize", () => {
-  if(currentMode === "teacher"){
-    const box = document.getElementById("basicQuestion");
-    if(box){
-      autoFitText(box);
+  const newW = playArea.clientWidth;
+  const newH = playArea.clientHeight;
+
+  // ✅ Chỉ resize chữ khi playArea thực sự đổi size
+  if(newW !== lastPlayW || newH !== lastPlayH){
+    lastPlayW = newW;
+    lastPlayH = newH;
+
+    if(currentMode === "teacher"){
+      const box = document.getElementById("basicQuestion");
+      if(box){
+        autoFitText(box);
+      }
     }
   }
 });
+
 
 
 
