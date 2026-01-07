@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Speaking – Cambridge Starters</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<style>
+body{
+  margin:0;
+  font-family:"Comic Sans MS", sans-serif;
+  background:#fef3c7;
+  text-align:center;
+}
+h1{ color:#ec4899; }
+
+/* ===== MENU ===== */
+#menu{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+  max-width:600px;
+  margin:40px auto;
+}
+.menu-btn{
+  padding:20px;
+  font-size:20px;
+  border-radius:16px;
+  cursor:pointer;
+  background:linear-gradient(90deg,#38bdf8,#0ea5e9);
+  font-weight:bold;
+}
+.menu-btn.na{
+  background:#ddd;
+  cursor:not-allowed;
+}
+
+/* ===== TEST ===== */
+#test{
+  display:none;
+  max-width:1000px; /* hẹp hơn 1 chút */
+  margin:auto;
+}
+#topBar{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  margin:10px;
+  flex-wrap:wrap;
+}
+
+/* ===== PLAY AREA ===== */
+#playArea{
+  position:relative;
+  width:85%;
+  aspect-ratio:16/9;
+  border:3px dashed #f59e0b;
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;
+  background:#fff;
+}
+
+
+/* canvas vẽ */
+#drawCanvas{
+  position:absolute;
+  inset:0;
+  z-index:10;
+  touch-action: none;
+}
+
+/* ảnh nền */
+
+
+/* ảnh nhỏ */
+
+
+/* ===== BIG BUTTON STYLE ===== */
+.big-btn{
+  padding:14px 28px;
+  font-size:20px;
+  border-radius:14px;
+  cursor:pointer;
+  background:linear-gradient(90deg,#38bdf8,#0ea5e9);
+  font-weight:bold;
+  border:none;
+  box-shadow:0 4px 10px rgba(0,0,0,.25);
+  transition:0.2s;
+}
+
+.big-btn:hover{
+  transform:scale(1.05);
+}
+
+.big-btn:active{
+  transform:scale(0.95);
+}
+
+.big-btn.secondary{
+  background:#e5e7eb;
+}
+
+
+
+.play-img{
+  display:block;
+  object-fit:contain;
+  pointer-events:none;
+}
+
+
+/* ===== BASIC QUESTION BOX ===== */
+#basicQuestion{
+  background: linear-gradient(135deg, #60a5fa, #34d399);
+  color: white;
+  font-size: 34px;
+  font-weight: bold;
+  padding: 30px 20px;
+  border-radius: 20px;
+  margin: 20px auto;
+  width: 80%;
+  max-width: 700px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  text-align: center;
+  transition: 0.3s;
+}
+
+
+
+/* ===== QUESTION OVERLAY ===== */
+#questionOverlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  z-index:999;
+  overflow-y:auto;  
+}
+#questionBox{
+  background:#fff;
+  max-width:95%;
+  margin:20px auto;
+  border-radius:12px;
+  padding:10px;
+}
+#questionBox img{
+  width:100%;
+}
+/* ===== TEACHER PARAGRAPH SPACING ===== */
+.teacher-line{
+  margin-bottom: 16px;   /* khoảng cách giữa các ý */
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🎉 Junior English - 113 Lê Trọng Tấn, Đà Nẵng - 0935.994359 🎉</h1>
+
+<div id="menu"></div>
+
+<div id="test">
+  <div id="topBar">
+    <button onclick="clearDrawing()">🧹 Clear</button>
+    <button onclick="backToMenu()">⬅ Back</button>
+    <span id="questionBtns"></span>
+  </div>
+
+  <div id="playArea">
+    <canvas id="drawCanvas"></canvas>
+  </div>
+</div>
+
+<div id="questionOverlay">
+  <div id="questionBox">
+    <div style="display:flex; gap:10px; flex-wrap:wrap">
+      <button onclick="closeQuestion()">⬅ Back</button>
+      <span id="questionBtnsOverlay"></span>
+    </div>
+    <div id="questionContent"></div>
+  </div>
+</div>
+
+<script>
+const menu=document.getElementById("menu");
+const test=document.getElementById("test");
+const playArea=document.getElementById("playArea");
+
+let canvas, ctx;
+
+
+const overlay=document.getElementById("questionOverlay");
+const qContent=document.getElementById("questionContent");
+const qBtns=document.getElementById("questionBtns");
+
+let currentFolder="";
+let drawing=false;
+
+
+/* ===== BASIC QUESTIONS DATA ===== */
+const juniorword = `
+What's your name?  🙋🙂
+How old are you?   🎂🎈
+How are you?       😊
+Where are you from? 🌍
+
+Do you like...?    👍
+Do you have...?
+Can you....?       💪
+What is your favourite....?  😍
+`;
+
+/* ===== xuống 1 dòng thì vẫn hiện chung, xuống dòng 2 lần thì tách riêng ===== */
+const teacherword = `
+Do you like...?    (colour, animal, food, drink, music, swimming, football, sport, car, balloon,  English...)
+Do you have...?    (animal, clothes, phone...)
+Can you ....?       (swim, play footbal, play badmiton, ride a bike...)
+What is your favourite....?   (colour, pet, animal, food...) 
+`;
+
+
+
+const basicQuestions = juniorword
+  .split("\n")
+  .map(s => s.trim())
+  .filter(s => s);
+
+let basicIndex = 0;
+
+const teacherQuestions = teacherword
+ // .split("\n") 
+  .split("\n\n")   // 👈 tách theo dòng trống
+
+
+  .map(s => s.trim())
+  .filter(s => s);
+
+let teacherIndex = 0;
+let currentMode = "basic"; // basic | teacher
+
+/* ===== MENU ===== */
+
+/* ===== BASIC QUESTIONS BUTTON ===== */
+const basicBtn = document.createElement("div");
+basicBtn.className = "menu-btn";
+basicBtn.textContent = "⭐ Basic Questions";
+basicBtn.onclick = () => startBasicMode();
+menu.appendChild(basicBtn);
+
+/* ===== TEACHER'S QUESTIONS BUTTON ===== */
+const teacherBtn = document.createElement("div");
+teacherBtn.className = "menu-btn";
+teacherBtn.textContent = "🎓 Teacher's Questions";
+teacherBtn.onclick = () => startTeacherMode();
+menu.appendChild(teacherBtn);
+
+
+for(let i=1;i<=9;i++){
+  const btn=document.createElement("div");
+  btn.className="menu-btn";
+  btn.textContent="Starter "+i;
+
+const img = new Image();
+
+img.onload = () => btn.onclick = () => loadStarter(i);
+
+img.onerror = () => {
+  img.onerror = () => {
+    btn.classList.add("na");
+  };
+  img.src = `flashcard/starter ${i}/1.png`;
+};
+
+img.src = `flashcard/starter ${i}/1.jpg`;
+
+
+  menu.appendChild(btn);
+}
+
+/* ===== STARTER ===== */
+function loadStarter(n){
+  currentFolder=`flashcard/starter ${n}/`;
+  startTest();
+}
+
+
+function bindCanvasEvents(){
+  canvas.addEventListener("pointerdown", e => {
+    drawing = true;
+    canvas.setPointerCapture(e.pointerId);
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener("pointermove", e => {
+    if (!drawing) return;
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.strokeStyle = "#ef4444";
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    ctx.stroke();
+  });
+
+  canvas.addEventListener("pointerup", stopDraw);
+  canvas.addEventListener("pointerleave", stopDraw);
+  canvas.addEventListener("pointercancel", stopDraw);
+}
+
+function startTest(){
+  menu.style.display="none";
+  test.style.display="block";
+  document.getElementById("topBar").style.display = "flex";
+
+  playArea.innerHTML = '<canvas id="drawCanvas"></canvas>';
+
+  canvas = document.getElementById("drawCanvas");
+  ctx = canvas.getContext("2d");
+
+  bindCanvasEvents();
+  resizeCanvas();
+  clearDrawing();
+  loadQuestions();
+
+  const imgLeft = new Image();
+  const imgRight = new Image();
+
+  imgLeft.src = currentFolder + "2.jpg";
+  imgLeft.onerror = () => imgLeft.src = currentFolder + "2.png";
+
+  imgRight.src = currentFolder + "1.jpg";
+  imgRight.onerror = () => imgRight.src = currentFolder + "1.png";
+
+
+  imgLeft.className = imgRight.className = "play-img";
+
+  let loaded = 0;
+
+  function onLoaded(){
+    loaded++;
+    if(loaded < 2) return;
+
+    layoutImages(imgLeft, imgRight);
+
+
+    playArea.insertBefore(imgLeft, canvas);
+    playArea.insertBefore(imgRight, canvas);
+
+  }
+
+  imgLeft.onload = onLoaded;
+  imgRight.onload = onLoaded;
+}
+
+function layoutImages(imgL, imgR){
+  const areaW = playArea.clientWidth;
+  const areaH = playArea.clientHeight;
+
+  const ratioL = imgL.naturalWidth / imgL.naturalHeight;
+  const ratioR = imgR.naturalWidth / imgR.naturalHeight;
+
+  // thử cho height = 100%
+  let h = areaH;
+  let wL = h * ratioL;
+  let wR = h * ratioR;
+
+  // nếu quá rộng -> scale xuống
+  if(wL + wR > areaW){
+    const scale = areaW / (wL + wR);
+    h *= scale;
+    wL *= scale;
+    wR *= scale;
+  }
+
+  imgL.style.height = h + "px";
+  imgL.style.width  = wL + "px";
+
+  imgR.style.height = h + "px";
+  imgR.style.width  = wR + "px";
+}
+
+
+
+
+/* ===== CANVAS DRAW ===== */
+function resizeCanvas(){
+  canvas.width=playArea.clientWidth;
+  canvas.height=playArea.clientHeight;
+}
+
+window.addEventListener("resize", () => {
+  resizeCanvas();
+  const imgs = playArea.querySelectorAll(".play-img");
+  if(imgs.length === 2){
+    layoutImages(imgs[0], imgs[1]);
+  }
+});
+
+
+
+function stopDraw(e){
+  drawing = false;
+
+  if (e.pointerId !== undefined) {
+    canvas.releasePointerCapture(e.pointerId);
+  }
+}
+
+
+
+function clearDrawing(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function backToMenu(){
+  test.style.display="none";
+  menu.style.display="grid";
+}
+
+/* ===== QUESTIONS ===== */
+function loadQuestions(){
+  qBtns.innerHTML="";
+  const overlayBtns=document.getElementById("questionBtnsOverlay");
+  overlayBtns.innerHTML="";
+
+  for(let i=1;i<=4;i++){
+    const b1=document.createElement("button");
+    const b2=document.createElement("button");
+    b1.textContent=b2.textContent="Question "+i;
+
+  const img = new Image();
+
+img.onload = () => b1.onclick = b2.onclick = () => showQuestion(i);
+
+img.onerror = () => {
+  img.onerror = () => {
+    b1.disabled = true;
+    b2.disabled = true;
+  };
+  img.src = currentFolder + "question " + i + ".png";
+};
+
+img.src = currentFolder + "question " + i + ".jpg";
+
+
+    qBtns.appendChild(b1);
+    overlayBtns.appendChild(b2);
+  }
+}
+
+function showQuestion(n){
+  qContent.innerHTML="";
+  const img=new Image();
+  img.onload=()=>{
+    qContent.appendChild(img);
+    overlay.style.display="block";
+  };
+  img.src = currentFolder + "question " + n + ".jpg";
+  img.onerror = () => img.src = currentFolder + "question " + n + ".png";
+}
+
+function closeQuestion(){
+  overlay.style.display="none";
+}
+
+/* ===== BASIC MODE ===== */
+function startBasicMode(){
+  currentMode = "basic";
+  basicIndex = 0;
+  startQuestionMode();
+}
+
+
+
+
+function startTeacherMode(){
+  currentMode = "teacher";
+  teacherIndex = 0;
+  startQuestionMode();
+}
+
+
+function startQuestionMode(){
+  menu.style.display = "none";
+  test.style.display = "block";
+  document.getElementById("topBar").style.display = "none";
+
+
+  playArea.innerHTML = `
+    <div id="basicBox" style="
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      font-size:32px;
+      padding:30px;
+      height:100%;
+
+    ">
+
+      <div id="basicQuestion"></div>
+
+      <div style="margin-top:20px; display:flex; gap:16px;">
+	<button id="nextBasicBtn" class="big-btn">Next question ▶</button>
+	<button id="backBasicBtn" class="big-btn secondary">⬅ Back</button>
+
+      </div>
+    </div>
+  `;
+
+  showQuestionText();
+
+  document.getElementById("nextBasicBtn").onclick = nextQuestion;
+  document.getElementById("backBasicBtn").onclick = backToMenu;
+}
+
+
+
+function showQuestionText(){
+  const box = document.getElementById("basicQuestion");
+  const nextBtn = document.getElementById("nextBasicBtn");
+
+  let list, index;
+
+  if(currentMode === "basic"){
+    list = basicQuestions;
+    index = basicIndex;
+
+    // ✅ Basic = căn giữa
+    box.style.textAlign = "center";
+
+  } else {
+    list = teacherQuestions;
+    index = teacherIndex;
+
+    // ✅ Teacher = căn trái
+    box.style.textAlign = "left";
+ //box.style.lineHeight = "2";   
+
+  }
+
+  if(index < list.length){
+if(currentMode === "teacher"){
+  box.innerHTML = list[index]
+    .split("\n")
+    .map(line => `<div class="teacher-line">${line}</div>`)
+    .join("");
+} else {
+  box.innerHTML = list[index].replace(/\n/g, "<br>");
+}
+
+
+if(currentMode === "teacher"){
+  autoFitText(box);
+}
+
+    nextBtn.disabled = false;
+    nextBtn.style.opacity = "1";
+  } else {
+    box.innerHTML = "🎉 COMPLETE!";
+    nextBtn.disabled = true;
+    nextBtn.style.opacity = "0.5";
+  }
+}
+
+
+function nextQuestion(){
+  if(currentMode === "basic"){
+    basicIndex++;
+  } else {
+    teacherIndex++;
+  }
+  showQuestionText();
+}
+
+function autoFitText(box){
+  let fontSize = 34;
+  box.style.fontSize = fontSize + "px";
+
+  const maxHeight = box.parentElement.clientHeight * 0.7;
+
+  while(box.scrollHeight > maxHeight && fontSize > 18){
+    fontSize -= 2;
+    box.style.fontSize = fontSize + "px";
+  }
+}
+
+window.addEventListener("resize", () => {
+  if(currentMode === "teacher"){
+    const box = document.getElementById("basicQuestion");
+    if(box){
+      autoFitText(box);
+    }
+  }
+});
+
+
+
+
+</script>
+
+</body>
+</html>
