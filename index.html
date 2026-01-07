@@ -168,10 +168,17 @@ h1{ color:#ec4899; }
     <span id="questionBtns"></span>
   </div>
 
+  <!-- ✅ Thanh nút dành riêng cho Basic / Teacher -->
+  <div id="questionBar" style="display:none; justify-content:center; gap:16px; margin:10px;">
+    <button id="nextBasicBtn" class="big-btn">Next question ▶</button>
+    <button id="backBasicBtn" class="big-btn secondary">⬅ Back</button>
+  </div>
+
   <div id="playArea">
     <canvas id="drawCanvas"></canvas>
   </div>
 </div>
+
 
 <div id="questionOverlay">
   <div id="questionBox">
@@ -312,6 +319,8 @@ function startTest(){
   menu.style.display="none";
   test.style.display="block";
   document.getElementById("topBar").style.display = "flex";
+document.getElementById("questionBar").style.display = "none";
+
 
   playArea.innerHTML = '<canvas id="drawCanvas"></canvas>';
 
@@ -416,6 +425,11 @@ function clearDrawing(){
 function backToMenu(){
   test.style.display="none";
   menu.style.display="grid";
+document.getElementById("questionBar").style.display = "none";
+document.getElementById("questionBtns").innerHTML = "";
+document.getElementById("questionBtnsOverlay").innerHTML = "";
+
+
 }
 
 /* ===== QUESTIONS ===== */
@@ -484,32 +498,31 @@ function startTeacherMode(){
 function startQuestionMode(){
   menu.style.display = "none";
   test.style.display = "block";
-  document.getElementById("topBar").style.display = "none";
+document.getElementById("topBar").style.display = "none";
+document.getElementById("questionBar").style.display = "flex";
+
+// ✅ Xóa nút Question của Starter
+document.getElementById("questionBtns").innerHTML = "";
+document.getElementById("questionBtnsOverlay").innerHTML = "";
 
 
-  playArea.innerHTML = `
-    <div id="basicBox" style="
-      width:100%;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      font-size:32px;
-      padding:30px;
-      height:65%;
-	  overflow-y:auto;
 
-    ">
+playArea.innerHTML = `
+  <div id="basicBox" style="
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    font-size:32px;
+    padding:30px;
+    height:100%;
+    overflow-y:auto;
+  ">
+    <div id="basicQuestion"></div>
+  </div>
+`;
 
-      <div id="basicQuestion"></div>
-
-      <div style="margin-top:20px; display:flex; gap:16px;">
-	<button id="nextBasicBtn" class="big-btn">Next question ▶</button>
-	<button id="backBasicBtn" class="big-btn secondary">⬅ Back</button>
-
-      </div>
-    </div>
-  `;
 
   showQuestionText();
 
