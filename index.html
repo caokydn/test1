@@ -500,6 +500,13 @@ function startTeacherMode(){
 function startQuestionMode(){
   menu.style.display = "none";
   test.style.display = "block";
+  
+// ✅ RESET playArea – xoá ảnh starter
+  playArea.innerHTML = '<canvas id="drawCanvas"></canvas>';
+  canvas = document.getElementById("drawCanvas");
+  ctx = canvas.getContext("2d");
+  resizeCanvas();
+  clearDrawing();
 
   document.getElementById("topBar").style.display = "none";
   document.getElementById("questionBar").style.display = "none";
