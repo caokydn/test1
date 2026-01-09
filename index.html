@@ -49,6 +49,18 @@ h1{ color:#ec4899; }
   flex-wrap:wrap;
 }
 
+/* ===== STARTER BUTTON COLOR ===== */
+.starter-btn{
+  background: linear-gradient(90deg, #f97316, #fb923c); /* cam */
+  color: white;
+}
+
+.starter-btn:hover{
+  filter: brightness(1.1);
+}
+
+
+
 /* ===== PLAY AREA ===== */
 #playArea{
   position:relative;
@@ -268,7 +280,8 @@ menu.appendChild(teacherBtn);
 
 for(let i=1;i<=9;i++){
   const btn=document.createElement("div");
-  btn.className="menu-btn";
+  btn.className = "menu-btn starter-btn";
+
   btn.textContent="Starter "+i;
 
 const img = new Image();
@@ -638,9 +651,6 @@ function autoFitText(box){
     box.style.fontSize = fontSize + "px";
   }
 }
-
-
-
 
 
 
